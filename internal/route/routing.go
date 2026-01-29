@@ -8,9 +8,7 @@ import (
 
 // Функция обработки команд от пользователя
 func Routers(bot *tb.Bot) {
-	//Роут на регистрацию
-	bot.Handle("/start", func(conx tb.Context) error {
-		err := handler.Registration(bot, conx)
-		return err
-	})
+	//Роут на регистрацию нового пользователя
+	bot.Handle("/start", handler.Registration)
+	bot.Handle(tb.OnText, handler.MachineState)
 }
