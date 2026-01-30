@@ -1,43 +1,66 @@
 package rations
 
-// Это калории в состоянии покоя.
-func BMR(weight, height float64, age int, gender string) float64 {
-	if gender == "male" {
-		return 10*weight + 6.25*height - 5*float64(age) + 5
+import (
+	"diplomkabot/internal/models"
+	"strconv"
+)
+
+// CalculateAll выполняет цепочку всех расчетов
+func CalculateAll(info *models.AllInformation) error {
+	if err := CalculateBMR(info); err != nil {
+		return err
 	}
-	return 10*weight + 6.25*height - 5*float64(age) - 161
+	CalculateBMI(info)
+	CalculateTDEE(info)
+	return nil
 }
 
-// коэффициент активности
-func ActivityCoefficient(activity string) float64 {
-	switch activity {
-	case "легкая":
-		return 1.2
-	case "средняя":
-		return 1.55
-	case "сильная":
-		return 1.75
+func CalculateBMR(info *models.AllInformation) error {
+	wF, err := strconv.ParseFloat(info.Weight, 64)
+	hF, err := strconv.ParseFloat(info.Height, 64)
+	aF, err := strconv.ParseFloat(info.Age, 64)
+	if err != nil {
+		return err
+	}
+
+	if info.Gender == "👨 Мужской" || info.Gender == "👨 Ер адам" {
+		info.BMR = 10*wF + 6.25*hF - 5*aF + 5
+	} else {
+		info.BMR = 10*wF + 6.25*hF - 5*aF - 161
+	}
+	return nil
+}
+
+func CalculateBMI(info *models.AllInformation) {
+	wF, _ := strconv.ParseFloat(info.Weight, 64)
+	hF, _ := strconv.ParseFloat(info.Height, 64)
+	hM := hF / 100
+	info.BMI = wF / (hM * hM)
+}
+
+func CalculateTDEE(info *models.AllInformation) {
+	var activityCoeff float64
+	switch info.Activity {
+	case "🟢 Легкие нагрузки", "🟢 Жеңіл жаттығулар":
+		activityCoeff = 1.2
+	case "🟡 Умеренные нагрузки", "🟡 Орташа жаттығулар":
+		activityCoeff = 1.55
+	case "🔴 Сильные нагрузки", "🔴 Ауыр жаттығулар":
+		activityCoeff = 1.75
 	default:
-		return 0
+		activityCoeff = 1.2
 	}
-}
 
-// коэффициент для похудения, поддержания, набора
-func TargetCoefficient(target string) float64 {
-	switch target {
-	case "похудение":
-		return 0.8
-	case "поддержание":
-		return 1
-	case "набор":
-		return 1.15
+	info.TDEE = info.BMR * activityCoeff
+
+	var targetCoeff float64
+	switch info.Goal {
+	case "📉 Сбросить вес", "📉 Салмақ тастау":
+		targetCoeff = 0.85 // дефицит 15%
+	case "📈 Набрать массу", "📈 Салмақ қосу":
+		targetCoeff = 1.15 // профицит 15%
 	default:
-		return 0
+		targetCoeff = 1.0
 	}
+	info.TargetKcal = info.TDEE * targetCoeff
 }
-
-// Это калории для поддержания текущего веса.
-// tdee := BMR * Activity
-
-// калорий для конечной цели
-// calories := tdee * TargetCoefficient

@@ -11,6 +11,7 @@ import (
 func Routers(conn *sql.DB, bot *tb.Bot) {
 	//Роут на регистрацию нового пользователя
 	bot.Handle("/start", handler.Registration)
+	bot.Handle("/profile", handler.Profile)
 	bot.Handle(tb.OnText, func(ctx tb.Context) error {
 		return handler.MachineState(conn, ctx)
 	})

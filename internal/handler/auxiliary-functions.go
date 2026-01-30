@@ -3,6 +3,7 @@ package handler
 import (
 	"database/sql"
 	"diplomkabot/internal/db"
+	"diplomkabot/internal/logic/rations"
 	"diplomkabot/internal/models"
 	"fmt"
 
@@ -107,7 +108,7 @@ func HandleActivity(c tb.Context, user models.AllInformation) error {
 func HandleGoals(conn *sql.DB, c tb.Context, user models.AllInformation) error {
 	user.Goal = c.Text()
 	user.State = "COMPLETED"
-
+	rations.CalculateAll(&user)
 	thanks := ""
 	if user.Language == "kz" {
 		thanks = "✅ <b>Тіркелу аяқталды!</b>\nМәліметтер сақталды."
@@ -124,7 +125,5 @@ func HandleGoals(conn *sql.DB, c tb.Context, user models.AllInformation) error {
 		fmt.Println("Ошибка вставки в БД:", err)
 		return err
 	}
-
-	fmt.Printf("User %d registered: %+v\n", c.Sender().ID, user)
 	return err
 }

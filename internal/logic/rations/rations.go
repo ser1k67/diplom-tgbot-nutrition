@@ -1,8 +1,10 @@
 package rations
 
-// эта хуйня грамовку и бжу меняет
-func Ration(file *NutritionPlan, calories int) {
-	allMeals := [][]Ingredient{
+import "diplomkabot/internal/models"
+
+// Меняет грамовку и БЖУ
+func Ration(file *models.NutritionPlan, calories int) {
+	allMeals := [][]models.Ingredient{
 		file.Meals.Breakfast,
 		file.Meals.Snack1,
 		file.Meals.Lunch,
