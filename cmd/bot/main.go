@@ -28,7 +28,7 @@ func main() {
 	if err != nil {
 		println("Не получилось подключиться к боту", err)
 	}
-	route.Routers(bot)
+	route.Routers(conn, bot)
 	println("Бот запущен")
 	bot.Start()
 }
