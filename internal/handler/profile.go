@@ -27,7 +27,7 @@ func Profile(c tb.Context) error {
 			"ИМТ: %.1f\n"+
 			"Базовый метаболизм (BMR): %.0f ккал\n"+
 			"Норма для поддержания (TDEE): %.0f ккал\n\n"+
-			"**Ваша норма для цели:** %.0f ккал",
+			"**Ваша норма для цели:** %.0f ккал/день",
 		user.TelegramID,
 		user.Language,
 		user.Gender,
