@@ -1,13 +1,14 @@
 package models
 
 type AllInformation struct {
-	ID       int64  // Telegram ID (из c.Sender().ID)
-	State    string // Состояние FSM
-	Language string // Код языка (ru/kz)
+	TelegramID int64  // Telegram ID (из c.Sender().ID)
+	State      string // Состояние FSM
+	Language   string // Код языка (ru/kz)
 
 	Gender   string // Пол
 	Age      string // Возраст (удобнее сразу в int)
 	Weight   string // Вес
+	Height   string //Рост
 	Activity string // Тип активности (ключ из словаря)
 	Goal     string // Цель (ключ из словаря)
 

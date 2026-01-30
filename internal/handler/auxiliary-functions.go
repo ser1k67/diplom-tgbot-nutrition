@@ -1,13 +1,14 @@
 package handler
 
 import (
+	"database/sql"
+	"diplomkabot/internal/db"
 	"diplomkabot/internal/models"
 	"fmt"
 
 	tb "gopkg.in/telebot.v3"
 )
 
-// Функция для определения языка
 func HandleLanguage(c tb.Context, user models.AllInformation) error {
 	if c.Text() == "🇷🇺 Русский язык" {
 		user.Language = "ru"
@@ -30,7 +31,6 @@ func HandleLanguage(c tb.Context, user models.AllInformation) error {
 	return err
 }
 
-// Функция для взятия пола
 func HandleGender(c tb.Context, user models.AllInformation) error {
 	user.Gender = c.Text()
 	user.State = "WAIT_AGE"
@@ -42,7 +42,6 @@ func HandleGender(c tb.Context, user models.AllInformation) error {
 	return err
 }
 
-// Функция для взятия возраста
 func HandleAge(c tb.Context, user models.AllInformation) error {
 	user.Age = c.Text()
 	user.State = "WAIT_WEIGHT"
@@ -54,11 +53,23 @@ func HandleAge(c tb.Context, user models.AllInformation) error {
 	return err
 }
 
-// Функция для взятия веса
 func HandleWeight(c tb.Context, user models.AllInformation) error {
-	user.Weight = c.Text() // Исправил на Weight
+	user.Weight = c.Text()
+	user.State = "WAIT_HEIGHT"
+
+	// Исправлено: теперь спрашиваем РОСТ после веса
+	txt := models.Phrases[user.Language]["ask_height"]
+
+	err := c.Send(txt, tb.ModeHTML)
+	machine[c.Sender().ID] = user
+	return err
+}
+
+func HandleHeight(c tb.Context, user models.AllInformation) error {
+	user.Height = c.Text()
 	user.State = "WAIT_ACTIVITY"
 
+	// Исправлено: теперь спрашиваем АКТИВНОСТЬ после роста
 	txt := models.Phrases[user.Language]["ask_activity"]
 	b1 := models.Phrases[user.Language]["btn_light"]
 	b2 := models.Phrases[user.Language]["btn_moderate"]
@@ -74,9 +85,8 @@ func HandleWeight(c tb.Context, user models.AllInformation) error {
 	return err
 }
 
-// Функция для взятия физической активности
 func HandleActivity(c tb.Context, user models.AllInformation) error {
-	user.Activity = c.Text() // Исправил на Active
+	user.Activity = c.Text()
 	user.State = "WAIT_GOALS"
 
 	txt := models.Phrases[user.Language]["ask_goals"]
@@ -94,12 +104,10 @@ func HandleActivity(c tb.Context, user models.AllInformation) error {
 	return err
 }
 
-// Функция для взятия целей
-func HandleGoals(c tb.Context, user models.AllInformation) error {
-	user.Goal = c.Text() // Исправил на Goal
+func HandleGoals(conn *sql.DB, c tb.Context, user models.AllInformation) error {
+	user.Goal = c.Text()
 	user.State = "COMPLETED"
 
-	// Финальное сообщение (можно добавить в словарь как "finish")
 	thanks := ""
 	if user.Language == "kz" {
 		thanks = "✅ <b>Тіркелу аяқталды!</b>\nМәліметтер сақталды."
@@ -109,8 +117,13 @@ func HandleGoals(c tb.Context, user models.AllInformation) error {
 
 	err := c.Send(thanks, tb.RemoveKeyboard, tb.ModeHTML)
 
-	// Тут можно либо удалить юзера из machine, либо оставить для работы
+	// Сохраняем в мапу и БД
 	machine[c.Sender().ID] = user
+	err = db.AddToDatabase(conn, user)
+	if err != nil {
+		fmt.Println("Ошибка вставки в БД:", err)
+		return err
+	}
 
 	fmt.Printf("User %d registered: %+v\n", c.Sender().ID, user)
 	return err

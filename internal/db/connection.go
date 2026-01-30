@@ -8,7 +8,7 @@ import (
 )
 
 func Connection() *sql.DB {
-	conn, err := sql.Open("sqlite", "../../database")
+	conn, err := sql.Open("sqlite", "../../database/TGBOT_DATABASE.db")
 	if err != nil {
 		fmt.Println("Не удалось выполнить подключение к базе данных:", err)
 		return nil
