@@ -7,11 +7,15 @@ import (
 )
 
 func Profile(c tb.Context) error {
+	// 1. Если это был клик по кнопке, убираем "часики"
+	if c.Callback() != nil {
+		c.Respond()
+	}
+
 	// reply keyboard (menu)
 	menu := &tb.ReplyMarkup{}
 	menu.Inline(
-		menu.Row(menu.Data("👤Профиль", "profile_btn")),
-		menu.Row(menu.Data("🍽️План питания", "mealPlan_btn")),
+		menu.Row(menu.Data("👤Изменить профиль", "redactProfile_btn"), menu.Data("🍽️План питания", "mealPlan_btn")),
 	)
 
 	user, ok := machine[c.Sender().ID]

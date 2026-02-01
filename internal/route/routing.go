@@ -15,4 +15,7 @@ func Routers(conn *sql.DB, bot *tb.Bot) {
 	bot.Handle(tb.OnText, func(ctx tb.Context) error {
 		return handler.MachineState(conn, ctx)
 	})
+
+	// кнопки в профиле
+	bot.Handle("\fredactProfile_btn", handler.Registration)
 }
