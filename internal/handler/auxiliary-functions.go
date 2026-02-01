@@ -125,5 +125,5 @@ func HandleGoals(conn *sql.DB, c tb.Context, user models.AllInformation) error {
 		fmt.Println("Ошибка вставки в БД:", err)
 		return err
 	}
-	return err
+	return Profile(c)
 }

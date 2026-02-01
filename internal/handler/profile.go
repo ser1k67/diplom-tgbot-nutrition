@@ -7,6 +7,13 @@ import (
 )
 
 func Profile(c tb.Context) error {
+	// reply keyboard (menu)
+	menu := &tb.ReplyMarkup{}
+	menu.Inline(
+		menu.Row(menu.Data("👤Профиль", "profile_btn")),
+		menu.Row(menu.Data("🍽️План питания", "mealPlan_btn")),
+	)
+
 	user, ok := machine[c.Sender().ID]
 	if !ok {
 		return c.Send("Сначала заполните анкету")
@@ -42,5 +49,5 @@ func Profile(c tb.Context) error {
 		user.TargetKcal,
 	)
 
-	return c.Send(information, tb.ModeMarkdown)
+	return c.Send(information, tb.ModeMarkdown, menu)
 }
