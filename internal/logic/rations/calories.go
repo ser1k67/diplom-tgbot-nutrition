@@ -2,6 +2,7 @@ package rations
 
 import (
 	"diplomkabot/internal/models"
+	"fmt"
 	"strconv"
 )
 
@@ -12,6 +13,7 @@ func CalculateAll(info *models.AllInformation) error {
 	}
 	CalculateBMI(info)
 	CalculateTDEE(info)
+	CalculatePFC(info)
 	return nil
 }
 
@@ -36,6 +38,12 @@ func CalculateBMI(info *models.AllInformation) {
 	hF, _ := strconv.ParseFloat(info.Height, 64)
 	hM := hF / 100
 	info.BMI = wF / (hM * hM)
+}
+func CalculatePFC(all *models.AllInformation) {
+	all.Proteins = (all.BMR * 0.3) / 4
+	fmt.Println(all.Proteins)
+	all.Fats = (all.BMR * 0.3) / 9
+	all.Carbs = (all.BMR * 0.4) / 4
 }
 
 func CalculateTDEE(info *models.AllInformation) {

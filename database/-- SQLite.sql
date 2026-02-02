@@ -1,6 +1,6 @@
 -- SQLite
-CREATE TABLE users (
-    telegram_id INTEGER PRIMARY KEY, -- Оставляем INTEGER, так как это ID
+CREATE TABLE IF NOT EXISTS users (
+    telegram_id INTEGER PRIMARY KEY,
     language    TEXT,
     gender      TEXT,
     age         TEXT,
@@ -8,17 +8,12 @@ CREATE TABLE users (
     activity    TEXT,
     goal        TEXT,
     height      TEXT,
-    
-    -- Результаты расчетов (тоже TEXT)
-    bmi         TEXT,
-    bmr         TEXT,
-    tdee        TEXT,
-    target_kcal TEXT,
-    
-    -- БЖУ
-    proteins    TEXT,
-    fats        TEXT,
-    carbs       TEXT,
-    
+    bmi         REAL,
+    bmr         REAL,
+    tdee        REAL,
+    target_kcal REAL,
+    proteins    REAL, -- Поменяй на REAL
+    fats        REAL, -- Поменяй на REAL
+    carbs       REAL, -- Поменяй на REAL
     created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
 );

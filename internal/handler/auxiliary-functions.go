@@ -109,6 +109,7 @@ func HandleGoals(conn *sql.DB, c tb.Context, user models.AllInformation) error {
 	user.Goal = c.Text()
 	user.State = "COMPLETED"
 	rations.CalculateAll(&user)
+	// Сохраняем в мапу и БД
 	thanks := ""
 	if user.Language == "kz" {
 		thanks = "✅ <b>Тіркелу аяқталды!</b>\nМәліметтер сақталды."
@@ -118,13 +119,12 @@ func HandleGoals(conn *sql.DB, c tb.Context, user models.AllInformation) error {
 	markup := MainMenu(c)
 	err := c.Send(thanks, &markup, tb.ModeHTML)
 
-	// Сохраняем в мапу и БД
+	fmt.Printf("%+v\n", user)
 	machine[c.Sender().ID] = user
 	err = db.AddToDatabase(conn, user)
 	if err != nil {
 		fmt.Println("Ошибка вставки в БД:", err)
 		return err
 	}
-	c.Send(thanks)
 	return Profile(conn, c)
 }

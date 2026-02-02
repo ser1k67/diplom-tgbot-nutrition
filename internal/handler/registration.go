@@ -19,6 +19,7 @@ func KeyboardButtons(arr []string) []tb.ReplyButton {
 }
 
 var machine = make(map[int64]models.AllInformation)
+var SearchMode = make(map[int64]bool)
 
 func Registration(conn *sql.DB, c tb.Context) error {
 	var exists bool
@@ -28,7 +29,7 @@ func Registration(conn *sql.DB, c tb.Context) error {
 	if err != nil && err != sql.ErrNoRows {
 		fmt.Println("Ошибка проверки регистрации:", err)
 	}
-	// 2. Если запись найдена, блокируем регистрацию
+	// Если запись найдена, блокируем регистрацию
 	if exists {
 		return c.Send("✅ <b>Вы уже зарегистрированы!</b>\nИспользуйте /profile для просмотра данных.", tb.RemoveKeyboard, tb.ModeHTML)
 	}
@@ -71,4 +72,8 @@ func MachineState(conn *sql.DB, c tb.Context) error {
 		return HandleGoals(conn, c, user)
 	}
 	return nil
+}
+func IsRegistering(userID int64) bool {
+	_, ok := machine[userID]
+	return ok
 }

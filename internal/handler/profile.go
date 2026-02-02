@@ -19,7 +19,7 @@ func Profile(conn *sql.DB, c tb.Context) error {
 		SELECT 
 			telegram_id, language, gender, age, weight, 
 			height, activity, goal, bmi, bmr, 
-			tdee, target_kcal 
+			tdee, target_kcal, proteins, fats, carbs
 		FROM users 
 		WHERE telegram_id = ?`
 
@@ -36,18 +36,18 @@ func Profile(conn *sql.DB, c tb.Context) error {
 		&user.BMR,
 		&user.TDEE,
 		&user.TargetKcal,
+		&user.Proteins,
+		&user.Fats,
+		&user.Carbs,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.Send("❌ <b>Анкета не найдена.</b>\nПожалуйста, сначала пройдите регистрацию командой /start", tb.ModeHTML)
 		}
-		// Логируем другие ошибки БД (например, проблемы с подключением)
+
 		fmt.Println("Database error:", err)
 		return err
 	}
-
-	// 3. Формируем сообщение в виде списка с точками
-	// <code> делает текст моноширинным (удобно для ID)
 	information := fmt.Sprintf(
 		"👤 <b>Ваш профиль:</b>\n\n"+
 			"• <b>ID:</b> <code>%d</code>\n"+
@@ -62,7 +62,12 @@ func Profile(conn *sql.DB, c tb.Context) error {
 			"• <b>ИМТ (BMI):</b> %.1f\n"+
 			"• <b>Базовый метаболизм:</b> %.0f ккал\n"+
 			"• <b>Расход с учетом нагрузок:</b> %.0f ккал\n\n"+
-			"🔥 <b>Ваша норма для цели:</b> <u>%.0f ккал/день</u>",
+			"🔥 <b>Ваша норма для цели:</b> <u>%.0f ккал/день</u>\n\n"+
+
+			"<b>Рекомендуемые макронутриенты:</b>\n"+
+			"• <b>Белки:</b> %.0f г\n"+
+			"• <b>Жиры:</b> %.0f г\n"+
+			"• <b>Углеводы:</b> %.0f г\n",
 		user.TelegramID,
 		user.Language,
 		user.Gender,
@@ -75,8 +80,10 @@ func Profile(conn *sql.DB, c tb.Context) error {
 		user.BMR,
 		user.TDEE,
 		user.TargetKcal,
+		user.Proteins,
+		user.Fats,
+		user.Carbs,
 	)
-
 	markup := MainMenu(c)
 	markup.ResizeKeyboard = true
 	return c.Send(information, &markup, tb.ModeHTML)
