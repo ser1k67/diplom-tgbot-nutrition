@@ -37,8 +37,6 @@ func Profile(conn *sql.DB, c tb.Context) error {
 		&user.TDEE,
 		&user.TargetKcal,
 	)
-
-	// 2. Если пользователя нет в базе — прерываем выполнение
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.Send("❌ <b>Анкета не найдена.</b>\nПожалуйста, сначала пройдите регистрацию командой /start", tb.ModeHTML)
@@ -78,6 +76,7 @@ func Profile(conn *sql.DB, c tb.Context) error {
 		user.TDEE,
 		user.TargetKcal,
 	)
+
 	markup := MainMenu(c)
 	markup.ResizeKeyboard = true
 	return c.Send(information, &markup, tb.ModeHTML)
