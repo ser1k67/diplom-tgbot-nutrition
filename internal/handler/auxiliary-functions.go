@@ -115,8 +115,8 @@ func HandleGoals(conn *sql.DB, c tb.Context, user models.AllInformation) error {
 	} else {
 		thanks = "✅ <b>Регистрация завершена!</b>\nДанные сохранены."
 	}
-
-	err := c.Send(thanks, tb.RemoveKeyboard, tb.ModeHTML)
+	markup := MainMenu(c)
+	err := c.Send(thanks, &markup, tb.ModeHTML)
 
 	// Сохраняем в мапу и БД
 	machine[c.Sender().ID] = user

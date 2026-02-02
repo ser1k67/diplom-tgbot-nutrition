@@ -10,8 +10,12 @@ import (
 // Функция обработки команд от пользователя
 func Routers(conn *sql.DB, bot *tb.Bot) {
 	//Роут на регистрацию нового пользователя
-	bot.Handle("/start", handler.Registration)
-	bot.Handle("/profile", handler.Profile)
+	bot.Handle("/start", func(c tb.Context) error {
+		return handler.Registration(conn, c)
+	})
+	bot.Handle("/profile", func(ctx tb.Context) error {
+		return handler.Profile(conn, ctx)
+	})
 	bot.Handle(tb.OnText, func(ctx tb.Context) error {
 		return handler.MachineState(conn, ctx)
 	})

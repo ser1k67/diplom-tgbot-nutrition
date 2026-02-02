@@ -20,10 +20,23 @@ func KeyboardButtons(arr []string) []tb.ReplyButton {
 
 var machine = make(map[int64]models.AllInformation)
 
-func Registration(c tb.Context) error {
-	var err error
+func Registration(conn *sql.DB, c tb.Context) error {
+	var exists bool
+	err := conn.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE telegram_id = ?)", c.Sender().ID).Scan(&exists)
 
-	machine[c.Sender().ID] = models.AllInformation{TelegramID: c.Sender().ID, State: "WAIT_LANGUAGE"}
+	// Если произошла ошибка БД (кроме отсутствия строк), лучше её залогировать
+	if err != nil && err != sql.ErrNoRows {
+		fmt.Println("Ошибка проверки регистрации:", err)
+	}
+	// 2. Если запись найдена, блокируем регистрацию
+	if exists {
+		return c.Send("✅ <b>Вы уже зарегистрированы!</b>\nИспользуйте /profile для просмотра данных.", tb.RemoveKeyboard, tb.ModeHTML)
+	}
+	machine[c.Sender().ID] = models.AllInformation{
+		TelegramID: c.Sender().ID,
+		State:      "WAIT_LANGUAGE",
+	}
+
 	buttons := KeyboardButtons([]string{"🇰🇿 Қазақ тілі", "🇷🇺 Русский язык"})
 	var markups tb.ReplyMarkup
 	markups.ReplyKeyboard = append(markups.ReplyKeyboard, buttons)
@@ -31,12 +44,11 @@ func Registration(c tb.Context) error {
 
 	err = c.Send("⚙️ <b>1. Выберите язык / Тілді таңдаңыз</b> ", &markups, tb.ModeHTML)
 	if err != nil {
-		return fmt.Errorf("Не удалось отправить сообщение пользователю")
+		return fmt.Errorf("не удалось отправить сообщение пользователю: %w", err)
 	}
 
 	return nil
 }
-
 func MachineState(conn *sql.DB, c tb.Context) error {
 	user, ok := machine[c.Sender().ID]
 	if !ok {
