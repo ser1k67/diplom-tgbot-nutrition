@@ -42,6 +42,11 @@ func Routers(conn *sql.DB, bot *tb.Bot) {
 	bot.Handle(tb.OnText, func(c tb.Context) error {
 		userID := c.Sender().ID
 
+		// проверка состояния редакт профиль
+		if handler.IsInRedactProcess(userID) {
+			return handler.HandleRedactState(conn, c)
+		}
+
 		// Проверка состояния регистрации
 		if handler.IsRegistering(userID) {
 			return handler.MachineState(conn, c)
@@ -61,7 +66,7 @@ func Routers(conn *sql.DB, bot *tb.Bot) {
 			return c.Send("Введите название продукта (например: Курица):")
 
 		case "⚙️ Редактировать профиль":
-			return handler.Registration(conn, c)
+			return handler.RedactProfile(conn, c)
 
 		default:
 			// Если юзер в режиме поиска

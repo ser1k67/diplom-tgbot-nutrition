@@ -39,3 +39,23 @@ func AddToDatabase(conn *sql.DB, profile models.AllInformation) error {
 
 	return nil
 }
+
+func DeleteUser(conn *sql.DB, telegramID int64) error {
+	query := `DELETE FROM users WHERE telegram_id = ?`
+
+	res, err := conn.Exec(query, telegramID)
+	if err != nil {
+		log.Printf("Ошибка при удалении пользователя %d: %v", telegramID, err)
+		return err
+	}
+
+	// Опционально: проверяем, удалили ли мы кого-то
+	rows, _ := res.RowsAffected()
+	if rows == 0 {
+		log.Printf("Пользователь с ID %d не найден в базе для удаления", telegramID)
+	} else {
+		log.Printf("Пользователь %d успешно удален", telegramID)
+	}
+
+	return nil
+}
